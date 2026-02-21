@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Slide Deck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .controls-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input[type="file"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 16px;
+            background: #6c757d;
+            font-size: 14px;
+        }
+
+        .toggle-btn.active {
+            background: #28a745;
+        }
+
+        .slide-container {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        }
+
+        #slide {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            color: #999;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 20px;
+            min-width: 100px;
+            font-size: 16px;
+        }
+
+        .counter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .counter-text {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .photo-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .photo-list h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .photo-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .photo-item-name {
+            font-size: 14px;
+            color: #555;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .photo-item button {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #dc3545;
+            min-width: 60px;
+        }
+
+        .photo-item button:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            input[type="file"] {
+                min-width: 100%;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Photo Slide Deck</h1>
+
+        <div class="controls-section">
+            <div class="input-group">
+                <input type="file" id="photoInput" accept="image/*" multiple>
+                <button onclick="addPhotos()">Add Photos</button>
+            </div>
+
+            <div class="toggle-group">
+                <button class="toggle-btn" id="autoPlayBtn" onclick="toggleAutoPlay()">▶ Auto Play</button>
+                <button class="toggle-btn" onclick="clearAllPhotos()" style="background: #dc3545;">🗑 Clear All</button>
+            </div>
+        </div>
+
+        <div class="slide-container">
+            <img id="slide" src="" alt="Slide">
+            <div class="empty-state" id="emptyState">No photos yet. Add some to get started!</div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousSlide()">⬅ Previous</button>
+            <button class="nav-btn" onclick="nextSlide()">Next ➡</button>
+        </div>
+
+        <div class="counter">
+            <span class="counter-text" id="counter">0 / 0</span>
+        </div>
+
+        <div class="photo-list">
+            <h3>Photos in Deck</h3>
+            <div id="photoListContainer">
+                <p style="color: #999; text-align: center;">No photos added yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let photos = [];
+        let currentSlideIndex = 0;
+        let autoPlayInterval = null;
+        let isAutoPlaying = false;
+        const AUTO_PLAY_INTERVAL = 3000; // 3 seconds
+
+        function addPhotos() {
+            const fileInput = document.getElementById('photoInput');
+            const files = fileInput.files;
+
+            if (files.length === 0) {
+                alert('Please select at least one photo');
+                return;
+            }
+
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    photos.push({
+                        name: file.name,
+                        data: e.target.result
+                    });
+                    updateDisplay();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            fileInput.value = '';
+        }
+
+        function updateDisplay() {
+            updateSlide();
+            updateCounter();
+            updatePhotoList();
+        }
+
+        function updateSlide() {
+            const slideElement = document.getElementById('slide');
+            const emptyState = document.getElementById('emptyState');
+
+            if (photos.length === 0) {
+                slideElement.style.display = 'none';
+                emptyState.style.display = 'block';
+                currentSlideIndex = 0;
+            } else {
+                slideElement.style.display = 'block';
+                emptyState.style.display = 'none';
+                
+                if (currentSlideIndex >= photos.length) {
+                    currentSlideIndex = 0;
+                }
+                
+                slideElement.src = photos[currentSlideIndex].data;
+            }
+        }
+
+        function updateCounter() {
+            const counter = document.getElementById('counter');
+            counter.textContent = `${photos.length > 0 ? currentSlideIndex + 1 : 0} / ${photos.length}`;
+        }
+
+        function updatePhotoList() {
+            const container = document.getElementById('photoListContainer');
+            
+            if (photos.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">No photos added yet</p>';
+                return;
+            }
+
+            container.innerHTML = photos.map((photo, index) => `
+                <div class="photo-item" style="${index === currentSlideIndex ? 'background: #e7f3ff; border-left-color: #667eea;' : ''}">
+                    <span class="photo-item-name">${index + 1}. ${photo.name}</span>
+                    <button onclick="removePhoto(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function nextSlide() {
+            if (photos.length === 0) return;
+            currentSlideIndex = (currentSlideIndex + 1) % photos.length;
+            updateDisplay();
+        }
+
+        function previousSlide() {
+            if (photos.length === 0) return;
+            currentSlideIndex = (currentSlideIndex - 1 + photos.length) % photos.length;
+            updateDisplay();
+        }
+
+        function removePhoto(index) {
+            photos.splice(index, 1);
+            
+            if (photos.length === 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= photos.length) {
+                currentSlideIndex = photos.length - 1;
+            }
+            
+            updateDisplay();
+        }
+
+        function clearAllPhotos() {
+            if (photos.length === 0) {
+                alert('No photos to clear');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to remove all photos?')) {
+                photos = [];
+                currentSlideIndex = 0;
+                stopAutoPlay();
+                updateDisplay();
+            }
+        }
+
+        function toggleAutoPlay() {
+            if (photos.length === 0) {
+                alert('Add photos first');
+                return;
+            }
+
+            if (isAutoPlaying) {
+                stopAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+
+        function startAutoPlay() {
+            isAutoPlaying = true;
+            const btn = document.getElementById('autoPlayBtn');
+            btn.classList.add('active');
+            
+            autoPlayInterval = setInterval(() => {
+                nextSlide();
+            }, AUTO_PLAY_INTERVAL);
+        }
+
+        function stopAutoPlay() {
+            isAutoPlaying = false;
+            const btn = document.getElementById('autoPlayBtn');
+            btn.classList.remove('active');
+            
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+
+        // Initialize display
+        updateDisplay();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+    </script>
+</body>
+</html>
